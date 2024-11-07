@@ -1,5 +1,7 @@
 import sqlite3
 
+
+
 def create_database():
     conn = sqlite3.connect('database/protokoll.db')
     cursor = conn.cursor()
@@ -56,4 +58,6 @@ def delete_data(entry_id):
     print(f"Eintrag {entry_id} erfolgreich gelöscht.")
 
 # Erstellung der db
+
 create_database()
+

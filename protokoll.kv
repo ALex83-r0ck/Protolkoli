@@ -3,9 +3,6 @@
     datum: datum
     beginn: beginn
     ende: ende
-    #avg_dauer: avg_dauer_label
-    #avg_auswirkung: avg_auswirkung_label
-    #haeufigster_verursacher: haeufigster_verursacher_label
     orientation: 'vertical'
 
     AnchorLayout:
@@ -23,18 +20,17 @@
         size_hint_y: None
         height: '1dp'
 
-    # Formular, zentriert in einem MDCard-Widget für besseren Fokus und Struktur
     MDBoxLayout:
         orientation: 'vertical'
         padding: ['20dp', '10dp']
-        spacing: '10dp'
+        spacing: '20dp'
         adaptive_height: True
         pos_hint: {"center_x": .5}
 
         MDCard:
             orientation: 'vertical'
             size_hint: None, None
-            size: "300dp", "500dp"
+            size: "350dp", "550dp"
             padding: '20dp'
             spacing: '15dp'
             pos_hint: {'center_x': 0.5}
@@ -58,6 +54,8 @@
                     id: datum
                     hint_text: 'Datum (YYYY-MM-DD)'
                     mode: 'rectangle'
+                    size_hint_y: None
+                    height: '40dp'
 
                 Label:
                     text: 'Start Zeit (HH:MM)'
@@ -66,6 +64,8 @@
                     id: beginn
                     hint_text: 'Beginn (HH:MM)'
                     mode: 'rectangle'
+                    size_hint_y: None
+                    height: '40dp'
     
                 Label:
                     text: 'Endzeit (HH:MM)'
@@ -74,6 +74,8 @@
                     id: ende
                     hint_text: 'Ende'
                     mode: 'rectangle'
+                    size_hint_y: None
+                    height: '40dp'
 
                 Label:
                     text: 'Grund'
@@ -82,6 +84,8 @@
                     id: grund
                     hint_text: 'Art der Störung'
                     mode: 'rectangle'
+                    size_hint_y: None
+                    height: '40dp'
 
                 Label:
                     text: 'Verursacher'
@@ -90,6 +94,8 @@
                     id: verursacher
                     hint_text: 'Verursacher'
                     mode: 'rectangle'
+                    size_hint_y: None
+                    height: '40dp'
 
                 Label:
                     text: 'Auswirkung'
@@ -98,12 +104,13 @@
                     id: auswirkung
                     hint_text: 'Auswirkungen von 1 - 5 (5 ist am schlimmsten)'
                     mode: 'rectangle'
+                    size_hint_y: None
+                    height: '40dp'
 
-        # Analysetools und Aktionen - alle Buttons untereinander, zentriert
         MDBoxLayout:
             orientation: 'vertical'
             padding: ['10dp', '10dp']
-            spacing: '10dp'
+            spacing: '15dp'
             size_hint_y: None
             height: self.minimum_height
             pos_hint: {"center_x": .5}
@@ -112,22 +119,27 @@
                 text: 'Dauer analysieren'
                 on_press: app.analyse_dauer()
                 md_bg_color: app.theme_cls.primary_color
+                size_hint_y: None
+                height: '48dp'
 
             MDRaisedButton:
                 text: 'Auswirkungen analysieren'
                 on_press: app.analyse_auswirkung()
                 md_bg_color: app.theme_cls.primary_color
+                size_hint_y: None
+                height: '48dp'
 
             MDRaisedButton:
                 text: 'Häufigkeit analysieren'
                 on_press: app.analyse_haeufigkeit()
                 md_bg_color: app.theme_cls.primary_color
+                size_hint_y: None
+                height: '48dp'
 
-        # Eintragsaktionen: aktualisieren, löschen, erfassen
         MDBoxLayout:
             orientation: 'horizontal'
             padding: ['10dp', '10dp']
-            spacing: '10dp'
+            spacing: '15dp'
             size_hint_y: None
             height: '48dp'
 
@@ -135,16 +147,22 @@
                 id: entry_id
                 hint_text: 'Eintrags-ID (für Aktualisieren/Löschen)'
                 mode: 'rectangle'
+                size_hint_x: 0.6
+                height: '40dp'
 
             MDRaisedButton:
                 text: 'Eintrag aktualisieren'
                 on_press: app.aktualisiere_daten(entry_id.text, datum.text, beginn.text, ende.text, grund.text, verursacher.text, auswirkung.text)
                 md_bg_color: app.theme_cls.primary_color
+                size_hint_x: 0.2
+                height: '40dp'
 
             MDRaisedButton:
                 text: 'Eintrag löschen'
                 on_press: app.loesche_daten(entry_id.text)
                 md_bg_color: app.theme_cls.primary_color
+                size_hint_x: 0.2
+                height: '40dp'
 
         MDRaisedButton:
             text: 'Daten erfassen'
@@ -152,3 +170,4 @@
             md_bg_color: app.theme_cls.primary_color
             size_hint_x: 1
             pos_hint: {"center_x": .5}
+            height: '48dp'

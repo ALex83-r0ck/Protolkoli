@@ -59,18 +59,18 @@ class ProtokollApp(MDApp):
         self.root.ende.text = current_time
         
 
-    def erfasse_daten(self, datum, beginn, ende, dauer, grund, verursacher, auswirkung):
+    def erfasse_daten(self, datum, beginn, ende, grund, verursacher, auswirkung):
         """Daten erfassen und in die Datenbank einfügen"""
         start_datetime = datetime.strptime(f"{datum} {beginn}", "%Y-%m-%d %H:%M")
         end_datetime = datetime.strptime(f"{datum} {ende}", "%Y-%m-%d %H:%M")
         dauer = (end_datetime - start_datetime).total_seconds() / 60
         insert_data(datum, beginn, ende, dauer, grund, verursacher, auswirkung)
-        print(f'Daten erfasst: {datum}, {beginn}, {ende}, Dauer: {dauer}, Grund: {grund}, Nachbar: {verursacher}, Auswirkungen: {auswirkung}')
+        print(f'Daten erfasst: {datum}, {beginn}, {ende}, Art der Störung: {grund}, Nachbar: {verursacher}, Auswirkungen: {auswirkung}')
 
     def aktualisiere_daten(self, entty_id, datum, beginn, ende, dauer, grund, verursacher, auswirkung):
         """Daten aktualisieren"""
         update_data(entty_id, datum, beginn, ende, dauer, grund, verursacher, auswirkung)
-        print(f'Daten aktualisiert: {entty_id}, {datum}, {beginn}, {ende}, Dauer: {dauer}, Grund: {grund}, Nachbar: {verursacher}, Auswirkungen: {auswirkung}')
+        print(f'Daten aktualisiert: {entty_id}, {datum}, {beginn}, {ende}, Dauer: {dauer}, Art der Störung: {grund}, Nachbar: {verursacher}, Auswirkungen: {auswirkung}')
 
     def loesche_daten(self, entry_id):
         """Daten löschen"""
