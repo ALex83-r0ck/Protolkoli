@@ -1,0 +1,154 @@
+<RootWidget>:
+    id: root_widget
+    datum: datum
+    beginn: beginn
+    ende: ende
+    #avg_dauer: avg_dauer_label
+    #avg_auswirkung: avg_auswirkung_label
+    #haeufigster_verursacher: haeufigster_verursacher_label
+    orientation: 'vertical'
+
+    AnchorLayout:
+        anchor_y: 'top'
+            
+        MDTopAppBar:
+            title: 'Lärmprotokoll App'
+            md_bg_color: app.theme_cls.primary_color
+            elevation: 4
+            size_hint_y: None
+            height: '56dp'
+            right_action_items: [["file-pdf", lambda x: app.generiere_protokoll()]]
+
+    MDSeparator:
+        size_hint_y: None
+        height: '1dp'
+
+    # Formular, zentriert in einem MDCard-Widget für besseren Fokus und Struktur
+    MDBoxLayout:
+        orientation: 'vertical'
+        padding: ['20dp', '10dp']
+        spacing: '10dp'
+        adaptive_height: True
+        pos_hint: {"center_x": .5}
+
+        MDCard:
+            orientation: 'vertical'
+            size_hint: None, None
+            size: "300dp", "500dp"
+            padding: '20dp'
+            spacing: '15dp'
+            pos_hint: {'center_x': 0.5}
+            
+            Label:
+                text: 'Formulardaten'
+                font_size: 20
+                bold: True
+                halign: 'center'
+
+            GridLayout:
+                cols: 2
+                spacing: '10dp'
+                row_default_height: '40dp'
+                adaptive_height: True
+
+                Label:
+                    text: 'Datum (YYYY-MM-DD)'
+                    font_size: 16
+                MDTextField:
+                    id: datum
+                    hint_text: 'Datum (YYYY-MM-DD)'
+                    mode: 'rectangle'
+
+                Label:
+                    text: 'Start Zeit (HH:MM)'
+                    font_size: 16
+                MDTextField:
+                    id: beginn
+                    hint_text: 'Beginn (HH:MM)'
+                    mode: 'rectangle'
+    
+                Label:
+                    text: 'Endzeit (HH:MM)'
+                    font_size: 16
+                MDTextField:
+                    id: ende
+                    hint_text: 'Ende'
+                    mode: 'rectangle'
+
+                Label:
+                    text: 'Grund'
+                    font_size: 16
+                MDTextField:
+                    id: grund
+                    hint_text: 'Art der Störung'
+                    mode: 'rectangle'
+
+                Label:
+                    text: 'Verursacher'
+                    font_size: 16
+                MDTextField:
+                    id: verursacher
+                    hint_text: 'Verursacher'
+                    mode: 'rectangle'
+
+                Label:
+                    text: 'Auswirkung'
+                    font_size: 16
+                MDTextField:
+                    id: auswirkung
+                    hint_text: 'Auswirkungen von 1 - 5 (5 ist am schlimmsten)'
+                    mode: 'rectangle'
+
+        # Analysetools und Aktionen - alle Buttons untereinander, zentriert
+        MDBoxLayout:
+            orientation: 'vertical'
+            padding: ['10dp', '10dp']
+            spacing: '10dp'
+            size_hint_y: None
+            height: self.minimum_height
+            pos_hint: {"center_x": .5}
+
+            MDRaisedButton:
+                text: 'Dauer analysieren'
+                on_press: app.analyse_dauer()
+                md_bg_color: app.theme_cls.primary_color
+
+            MDRaisedButton:
+                text: 'Auswirkungen analysieren'
+                on_press: app.analyse_auswirkung()
+                md_bg_color: app.theme_cls.primary_color
+
+            MDRaisedButton:
+                text: 'Häufigkeit analysieren'
+                on_press: app.analyse_haeufigkeit()
+                md_bg_color: app.theme_cls.primary_color
+
+        # Eintragsaktionen: aktualisieren, löschen, erfassen
+        MDBoxLayout:
+            orientation: 'horizontal'
+            padding: ['10dp', '10dp']
+            spacing: '10dp'
+            size_hint_y: None
+            height: '48dp'
+
+            MDTextField:
+                id: entry_id
+                hint_text: 'Eintrags-ID (für Aktualisieren/Löschen)'
+                mode: 'rectangle'
+
+            MDRaisedButton:
+                text: 'Eintrag aktualisieren'
+                on_press: app.aktualisiere_daten(entry_id.text, datum.text, beginn.text, ende.text, grund.text, verursacher.text, auswirkung.text)
+                md_bg_color: app.theme_cls.primary_color
+
+            MDRaisedButton:
+                text: 'Eintrag löschen'
+                on_press: app.loesche_daten(entry_id.text)
+                md_bg_color: app.theme_cls.primary_color
+
+        MDRaisedButton:
+            text: 'Daten erfassen'
+            on_press: app.erfasse_daten(datum.text, beginn.text, ende.text, grund.text, verursacher.text, auswirkung.text)
+            md_bg_color: app.theme_cls.primary_color
+            size_hint_x: 1
+            pos_hint: {"center_x": .5}
