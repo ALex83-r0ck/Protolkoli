@@ -7,15 +7,21 @@ from reportlab.platypus import Table, TableStyle
 
 def generiere_protokoll(data):
     c = canvas.Canvas('Lärmprotokoll.pdf', pagesize=A4)
+    c.setFont("Helvetica", 10)
+    c.setFontSize(10)
     c.drawString(225, 800, "Lärmprotokoll erstellt am: " + date.today().strftime("%d.%m.%Y"))
 
-    c.drawString(50, 780,"Die Dauer ist in Minuten angeben.")
-    c.drawString(50, 769,"Die Auswirkungen werden in 5 Stufen ausgewiesen:")
-    c.drawString(50, 757,"1: Keine Auswirkungen")
-    c.drawString(50, 747,"2: Kleine Auswirkungen")
-    c.drawString(50, 737,"3: Mittlere Auswirkungen")
-    c.drawString(50, 727,"4: Große Auswirkungen")
-    c.drawString(50, 717,"5: Sehr große Auswirkungen")
+    
+    c.drawString(50, 500,"Die Dauer ist in Minuten angeben.")
+    c.drawString(50, 490,"Die Auswirkungen werden in 5 Stufen ausgewiesen:")
+    c.drawString(50, 479,"1: Keine Auswirkungen")
+    c.drawString(50, 469,"2: Kleine Auswirkungen")
+    c.drawString(50, 459,"3: Mittlere Auswirkungen")
+    c.drawString(50, 449,"4: Große Auswirkungen")
+    c.drawString(50, 439,"5: Sehr große Auswirkungen")
+
+    c.drawString(50, 400, "Ort: ____________" + "Datum: _______________")
+    c.drawString(50, 380, "Unterschrift: ______________")
 
     # Create a table with the data
     table_data = []
