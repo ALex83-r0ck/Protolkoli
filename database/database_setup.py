@@ -1,6 +1,8 @@
 import sqlite3
+import logging
 
 
+logger = logging.getLogger(__name__)
 
 def create_database():
     conn = sqlite3.connect('database/protokoll.db')
@@ -17,6 +19,7 @@ def create_database():
                    UNIQUE(datum, beginn, verursacher))''')  # Verhindert doppelte Einträge
     conn.commit()
     conn.close()
+    logger.info("Datenbank und Tabellen erfolgreich erstellt.")
 
 def insert_data(datum, beginn, ende, dauer, grund, verursacher, auswirkung):
     try:
@@ -25,9 +28,9 @@ def insert_data(datum, beginn, ende, dauer, grund, verursacher, auswirkung):
         cursor.execute("INSERT INTO laermdaten (datum, beginn, ende, dauer, grund, verursacher, auswirkung) VALUES (?, ?, ?, ?, ?, ?, ?)",
                        (datum, beginn, ende, dauer, grund, verursacher, auswirkung))
         conn.commit()
-        print("Daten erfolgreich hinzugefügt.")
+        logger.info("Daten erfolgreich hinzugefügt.")
     except sqlite3.IntegrityError:
-        print("Ein Eintrag mit dem gleichen Datum und der gleichen Zeit existiert bereits.")
+        logger.warning("Ein Eintrag mit dem gleichen Datum und der gleichen Zeit existiert bereits.")
     finally:
         conn.close()
 
@@ -47,15 +50,16 @@ def update_data(entry_id, datum, beginn, ende, dauer, grund, verursacher, auswir
                       WHERE id = ?''', (datum, beginn, ende, dauer, grund, verursacher, auswirkung, entry_id))
     conn.commit()
     conn.close()
-    print(f"Eintrag {entry_id} erfolgreich aktualisiert.")
+    logger.info(f"Eintrag {entry_id} erfolgreich aktualisiert.")
 
-def delete_data(entry_id):
+def delete_data(self, entry_id):
     conn = sqlite3.connect('database/protokoll.db')
     cursor = conn.cursor()
     cursor.execute("DELETE FROM laermdaten WHERE id = ?", (entry_id,))
     conn.commit()
     conn.close()
-    print(f"Eintrag {entry_id} erfolgreich gelöscht.")
+    logger.warning(f"Eintrag {entry_id} erfolgreich gelöscht.")
+    self.show_snackbar(f'Daten gelöscht: {entry_id}')
 
 # Erstellung der db
 

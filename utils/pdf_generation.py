@@ -5,7 +5,7 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle
 
-def generiere_protokoll(data):
+def generiere_protokoll(self, data):
     c = canvas.Canvas('Lärmprotokoll.pdf', pagesize=A4)
     c.setFont("Helvetica", 10)
     c.setFontSize(10)
@@ -44,4 +44,5 @@ def generiere_protokoll(data):
     table.wrapOn(c, 50, 50)
     table.drawOn(c, 50, 600)
 
+    self.label.show_snackbar(f"Pdf erfolgreich erstellt.")
     c.save()

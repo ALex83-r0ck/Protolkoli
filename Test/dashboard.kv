@@ -1,0 +1,48 @@
+# dashboard.kv
+
+<DashboardScreen>:
+    GridLayout:
+        cols: 2
+        rows: 2
+        spacing: dp(10)
+        padding: dp(20)
+
+        # Kachel 1: Formular
+        BoxLayout:
+            orientation: 'vertical'
+            padding: dp(10)
+            Label:
+                text: "Formular"
+                font_size: '20sp'
+            # Dein Formular hier einfügen
+
+        # Kachel 2: Diagramm
+        BoxLayout:
+            orientation: 'vertical'
+            padding: dp(10)
+            Label:
+                text: "Diagramm"
+                font_size: '20sp'
+            # Diagrammanzeige (später)
+
+        # Kachel 3: Weitere Buttons oder Inhalte
+        BoxLayout:
+            orientation: 'vertical'
+            padding: dp(10)
+            Label:
+                text: "Optionen"
+                font_size: '20sp'
+            Button:
+                text: "Option 1"
+            Button:
+                text: "Option 2"
+
+        # Kachel 4: Weitere Inhalte oder Informationen
+        BoxLayout:
+            orientation: 'vertical'
+            padding: dp(10)
+            Label:
+                text: "Informationen"
+                font_size: '20sp'
+            Label:
+                text: "Status oder andere Informationen"

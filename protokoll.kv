@@ -5,169 +5,233 @@
     ende: ende
     orientation: 'vertical'
 
-    AnchorLayout:
-        anchor_y: 'top'
-            
+    FloatLayout:
+        Image:
+            source: 'utils/image/R (8).jpg'  # Pfad zum Bild Auswahl näher 53258-amazing-einfarbige-hintergrundbilder-2560x1600.jpg, R (10).jpg
+            allow_stretch: True
+            keep_ratio: False
+            size_hint: 1, 1  # Bild füllt den gesamten Bereich
+
         MDTopAppBar:
+            id: top_app_bar
+            pos_hint: {'top': 1}
+            elevation: 4
             title: 'Lärmprotokoll App'
             md_bg_color: app.theme_cls.primary_color
-            elevation: 4
             size_hint_y: None
-            height: '56dp'
-            right_action_items: [["file-pdf", lambda x: app.generiere_protokoll()]]
+            height: '50dp'
+            right_action_items: [["utils/image/pdf-icon-png-2056.png", lambda x: app.generiere_protokoll()]]
 
-    MDSeparator:
-        size_hint_y: None
-        height: '1dp'
-
-    MDBoxLayout:
-        orientation: 'vertical'
-        padding: ['20dp', '10dp']
-        spacing: '20dp'
-        adaptive_height: True
-        pos_hint: {"center_x": .5}
-
-        MDCard:
-            orientation: 'vertical'
-            size_hint: None, None
-            size: "350dp", "550dp"
-            padding: '20dp'
-            spacing: '15dp'
-            pos_hint: {'center_x': 0.5}
-            
-            Label:
-                text: 'Formulardaten'
-                font_size: 20
-                bold: True
-                halign: 'center'
-
-            GridLayout:
-                cols: 2
-                spacing: '10dp'
-                row_default_height: '40dp'
-                adaptive_height: True
-
-                Label:
-                    text: 'Datum (YYYY-MM-DD)'
-                    font_size: 16
-                MDTextField:
-                    id: datum
-                    hint_text: 'Datum (YYYY-MM-DD)'
-                    mode: 'rectangle'
-                    size_hint_y: None
-                    height: '40dp'
-
-                Label:
-                    text: 'Start Zeit (HH:MM)'
-                    font_size: 16
-                MDTextField:
-                    id: beginn
-                    hint_text: 'Beginn (HH:MM)'
-                    mode: 'rectangle'
-                    size_hint_y: None
-                    height: '40dp'
-    
-                Label:
-                    text: 'Endzeit (HH:MM)'
-                    font_size: 16
-                MDTextField:
-                    id: ende
-                    hint_text: 'Ende'
-                    mode: 'rectangle'
-                    size_hint_y: None
-                    height: '40dp'
-
-                Label:
-                    text: 'Grund'
-                    font_size: 16
-                MDTextField:
-                    id: grund
-                    hint_text: 'Art der Störung'
-                    mode: 'rectangle'
-                    size_hint_y: None
-                    height: '40dp'
-
-                Label:
-                    text: 'Verursacher'
-                    font_size: 16
-                MDTextField:
-                    id: verursacher
-                    hint_text: 'Verursacher'
-                    mode: 'rectangle'
-                    size_hint_y: None
-                    height: '40dp'
-
-                Label:
-                    text: 'Auswirkung'
-                    font_size: 16
-                MDTextField:
-                    id: auswirkung
-                    hint_text: 'Auswirkungen von 1 - 5 (5 ist am schlimmsten)'
-                    mode: 'rectangle'
-                    size_hint_y: None
-                    height: '40dp'
-
-        MDBoxLayout:
-            orientation: 'vertical'
-            padding: ['10dp', '10dp']
-            spacing: '15dp'
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+              
+        # Hauptbereich als GridLayout
+        GridLayout:
+            cols: 2
+            spacing: dp(20)
+            padding: dp(20)
             size_hint_y: None
             height: self.minimum_height
-            pos_hint: {"center_x": .5}
 
-            MDRaisedButton:
-                text: 'Dauer analysieren'
-                on_press: app.analyse_dauer()
-                md_bg_color: app.theme_cls.primary_color
-                size_hint_y: None
-                height: '48dp'
+            # Linke Kachel - Platzhalter für Diagramme
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: '20dp'
+                size_hint: 1, 1
+                height: self.minimum_height
+                spacing: dp(10)
+                MDLabel:
+                    text: 'Diagramm Platzhalter'
+                    halign: 'center'
+                    font_size: 18
+                    bold: True
+                    size_hint_y: None
+                    height: '40dp'
 
-            MDRaisedButton:
-                text: 'Auswirkungen analysieren'
-                on_press: app.analyse_auswirkung()
-                md_bg_color: app.theme_cls.primary_color
-                size_hint_y: None
-                height: '48dp'
+                MDRaisedButton:
+                    text: 'Dauer analysieren'
+                    on_press: app.analyse_dauer()
+                    md_bg_color: app.theme_cls.primary_color
+                    size_hint_y: None
+                    height: '48dp'
 
-            MDRaisedButton:
-                text: 'Häufigkeit analysieren'
-                on_press: app.analyse_haeufigkeit()
-                md_bg_color: app.theme_cls.primary_color
-                size_hint_y: None
-                height: '48dp'
+                MDRaisedButton:
+                    text: 'Häufigkeit analysieren'
+                    on_press: app.analyse_haeufigkeit()
+                    md_bg_color: app.theme_cls.primary_color
+                    size_hint_y: None
+                    height: '48dp'
 
-        MDBoxLayout:
-            orientation: 'horizontal'
-            padding: ['10dp', '10dp']
-            spacing: '15dp'
-            size_hint_y: None
-            height: '48dp'
+                MDRaisedButton:
+                    text: 'Auswirkungen analysieren'
+                    on_press: app.analyse_auswirkung()
+                    md_bg_color: app.theme_cls.primary_color
+                    size_hint_y: None
+                    height: '48dp'
 
-            MDTextField:
-                id: entry_id
-                hint_text: 'Eintrags-ID (für Aktualisieren/Löschen)'
-                mode: 'rectangle'
-                size_hint_x: 0.6
-                height: '40dp'
+                
 
-            MDRaisedButton:
-                text: 'Eintrag aktualisieren'
-                on_press: app.aktualisiere_daten(entry_id.text, datum.text, beginn.text, ende.text, grund.text, verursacher.text, auswirkung.text)
-                md_bg_color: app.theme_cls.primary_color
-                size_hint_x: 0.2
-                height: '40dp'
+            MDCard:
+                style: 'outlined'
+                pos_hint: {"center_x": .5, "center_y": .5}
+                padding: "5dp"
+                size_hint: None, None
+                size: "450dp", "300dp"
+                # Sets custom properties.
+                theme_shadow_color: "Custom"
+                shadow_color: "green"
+                theme_bg_color: "Custom"
+                md_bg_color: "white"
+                md_bg_color_disabled: "grey"
+                theme_shadow_offset: "Custom"
+                shadow_offset: (1, -2)
+                theme_shadow_softness: "Custom"
+                shadow_softness: 1
+                theme_elevation_level: "Custom"
+                elevation_level: 2
+                spacing: dp(5)
+                radius: [dp(10), dp(10), dp(10), dp(10)]
 
-            MDRaisedButton:
-                text: 'Eintrag löschen'
-                on_press: app.loesche_daten(entry_id.text)
-                md_bg_color: app.theme_cls.primary_color
-                size_hint_x: 0.2
-                height: '40dp'
+                MDTopAppBar:
+                    pos_hint: {'top': 1}
+                    elevation: 4
+                    size_hint_y: dp(100)
+                    title: 'Einträge bearbeiten'
+                    md_bg_color: app.theme_cls.primary_color
+                    size: dp(350), dp(50)
+                    size_hint: None, None
+                    height: dp(40)
 
-        MDRaisedButton:
-            text: 'Daten erfassen'
-            on_press: app.erfasse_daten(datum.text, beginn.text, ende.text, grund.text, verursacher.text, auswirkung.text)
-            md_bg_color: app.theme_cls.primary_color
-            size_hint_x: 1
-            pos_hint: {"center_x": .5}
-            height: '48dp'
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    padding: dp(10)
+                    spacing: dp(10)
+
+
+                    MDGridLayout:
+                        cols: 2
+                        rows: 4
+                        spacing: dp(5)
+                        height: self.minimum_height
+
+                        MDLabel:
+                            pos_hint: {"center_x": 0.5}
+                            text: 'ID'
+                            font_size: 16
+
+                        MDTextField:
+                            id: eingabe
+                            hint_text: 'ID'
+                            mode: 'rectangle'
+                            size_hint_y: None
+                            height: '50dp'
+                            pos_hint: {"center_x": .5}
+
+                        MDRaisedButton:
+                            text: 'Eintrag aktualisieren'
+                            on_press: app.aktualisiere_eintrag(eingabe.text)
+                            md_bg_color: app.theme_cls.primary_color
+                            size_hint_x: 0.5
+
+                        MDRaisedButton:
+                            text: 'Eintrag Löschen'
+                            on_press: app.loesche_daten(eingabe.text)
+                            md_bg_color: app.theme_cls.primary_color
+                            size_hint_x: 0.5      
+
+            # Rechte Kachel - Formular mittig ausgerichtet
+            MDCard:
+                style: "elevated"
+                pos_hint: {"center_x": .4, "center_y": .5}
+                padding: "4dp"
+                size_hint: None, None
+                size: "500dp", "500dp"
+                # Sets custom properties.
+                theme_shadow_color: "Custom"
+                shadow_color: "green"
+                theme_bg_color: "Custom"
+                md_bg_color: "white"
+                md_bg_color_disabled: "grey"
+                theme_shadow_offset: "Custom"
+                shadow_offset: (1, -2)
+                theme_shadow_softness: "Custom"
+                shadow_softness: 1
+                theme_elevation_level: "Custom"
+                elevation_level: 2
+
+                        
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    spacing: '10dp'
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    MDLabel:
+                        text: 'Datum: (YYYY-MM-DD)'
+                        font_size: 16
+                    MDTextField:
+                        id: datum
+                        mode: 'rectangle'
+                        size_hint_y: None
+                        height: '50dp'
+
+                    MDLabel:
+                        text: 'Beginn: (HH:MM)'
+                        font_size: 16
+                    MDTextField:
+                        id: beginn
+                        hint_text: 'z.B. 8:00'
+                        mode: 'rectangle'
+                        size_hint_y: None
+                        height: '50dp'
+
+                    MDLabel:
+                        text: 'Ende: (HH:MM)'
+                        font_size: 16
+                    MDTextField:
+                        id: ende
+                        hint_text: 'z.B. 08:01'
+                        mode: 'rectangle'
+                        size_hint_y: None
+                        height: '50dp'
+
+                    MDLabel:
+                        text: 'Art der Störung:'
+                        font_size: 16
+                    MDTextField:
+                        id: grund
+                        hint_text: 'z.B. Trampeln'
+                        mode: 'rectangle'
+                        size_hint_y: None
+                        height: '100dp'
+
+                    MDLabel:
+                        text: 'Verursacher:'
+                        font_size: 16
+                    MDTextField:
+                        id: verursacher
+                        hint_text: 'z.B. Nachbar'
+                        mode: 'rectangle'
+                        size_hint_y: None
+                        height: '50dp'
+
+                    MDLabel:
+                        text: 'Auswirkung:'
+                        font_size: 16
+                    MDTextField:
+                        id: auswirkung
+                        input_type: 'number'
+                        max_text_length: 1
+                        hint_text: 'z.B. 3'
+                        mode: 'rectangle'
+                        size_hint_y: None
+                        height: '50dp'
+
+                MDRaisedButton:
+                    text: 'Daten erfassen'
+                    on_press: app.erfasse_daten(datum.text, beginn.text, ende.text, grund.text, verursacher.text, auswirkung.text)
+                    md_bg_color: app.theme_cls.primary_color
+                    size_hint_y: None
+                    height: '48dp'
+                    pos_hint: {"center_x": .5}

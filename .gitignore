@@ -1,0 +1,6 @@
+test_protokoll.py
+Lärmprotokoll.pdf
+data/logs/app.log
+test_protokoll.py
+database/protokoll.db
+database/__pycache__/database_setup.cpython-310.pyc
