@@ -3,7 +3,11 @@
 
 Die **Protokoll-App** ermöglicht es, Lärmdaten zu erfassen und zu verwalten sowie dies als Protokoll auszugeben. Sie bietet eine einfache Benutzeroberfläche zur Eingabe und Anzeige von Störungen und speichert alle Daten in einer SQLite-Datenbank.
 
-!Beispiel eines App-Screenshots
+App-Screenshots:
+![NewLayout](https://github.com/user-attachments/assets/ff4416e3-a960-4c64-a0e3-e8ecb8b38a53)
+![Unbenannt1](https://github.com/user-attachments/assets/fd72d292-4241-41b5-9580-51c048590a4e)
+
+
 
 ## 🚀 Features
 
