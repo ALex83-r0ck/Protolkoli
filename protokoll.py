@@ -1,9 +1,12 @@
+from pydoc import text
+from turtle import title
 from kivymd.app import MDApp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
 from kivymd.uix.label import MDLabel
 from kivymd.uix.snackbar import MDSnackbar
 from kivy.graphics import Rotate 
+from custom_widget.draggable_card import MyDraggableCard
 from datetime import datetime
 from database.database_setup import create_database, insert_data, get_all_data, update_data, delete_data
 from utils.pdf_generation import generiere_protokoll as pg_generiere_protokoll
@@ -15,6 +18,8 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.toolbar import MDTopAppBar
 from kivymd.uix.textfield import MDTextField
+from kivymd.uix.card import MDCard
+from kivy.core.window import Window
 import pandas as pd
 import os
 
@@ -22,6 +27,7 @@ import logging
 log_directory = 'data/logs'
 log_file_path = os.path.join(log_directory, 'app.log')
 os.makedirs(log_directory, exist_ok=True)
+
 logging.basicConfig(
     level=logging.DEBUG, 
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -96,20 +102,28 @@ class VerticalLabel(MDLabel):
         # Öffne die Snackbar
         snackbar.open()
 
-
 class ProtokollApp(MDApp):
     def __init__(self, **kwargs):
         super(ProtokollApp, self).__init__(**kwargs)
-        current_date, current_time = self.default_values()
+        self.current_date, self.current_time = self.default_values()
         self.label = VerticalLabel()
+        self.draggable_card = MyDraggableCard()
         
     def build(self):
         create_database()
-        return RootWidget() # Diese RootWidget-Instanz wird durch die .kv-Datei definiert
+        self.root = RootWidget()
+        print("Widgets in Window:")
+        for widget in Window.children:
+            print(widget)
+
+        for widget in self.root.children:
+            print("Child: ", widget)
+        return self.root
 
     def on_start(self):
         Clock.schedule_once(self.set_default_values)  # Warten, bis das Layout vollständig geladen ist
-        
+        self.set_default_values()
+
     def default_values(self):
         now = datetime.now()
         current_date = now.strftime("%Y-%m-%d")
@@ -118,10 +132,27 @@ class ProtokollApp(MDApp):
 
     def set_default_values(self, *args):
         """Stellt sicher, dass die TextInputs gesetzt werden, nachdem das Layout geladen ist"""
+        current_date = datetime.now().strftime("%d-%m-%Y")
+        if self.root.ids.get("datum"):
+            self.root.datum.text = current_date
+        else:
+            print("Fehler: Datum fehlt oder widget nicht gefunden.")
+        
+        current_time = datetime.now().strftime("%H:%M")
+        if self.root.ids.get("beginn"):
+            self.root.beginn.text = current_time
+        else:
+            print("Fehler: Beginn fehlt oder widget nicht gefunden.")
+        
+        if self.root.ids.get("ende"):
+            self.root.ende.text = current_time
+        else:
+            print("Fehler: Ende fehlt oder widget nicht gefunden.")
+
         current_date, current_time = self.default_values()
-        self.root.datum.text = current_date
-        self.root.beginn.text = current_time
-        self.root.ende.text = current_time
+        self.root.ids.datum.text = current_date
+        self.root.ids.beginn.text = current_time
+        self.root.ids.ende.text = current_time
         
 
     def erfasse_daten(self, datum, beginn, ende, grund, verursacher, auswirkung):
@@ -172,8 +203,6 @@ class ProtokollApp(MDApp):
         df = pd.DataFrame(data)
         print(df.columns)
         pg_generiere_protokoll(df.to_dict(orient='records'))
-
-    
-    
+   
 if __name__ == '__main__':
     ProtokollApp().run()
