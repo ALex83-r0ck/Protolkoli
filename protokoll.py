@@ -200,9 +200,14 @@ class ProtokollApp(MDApp):
     def generiere_protokoll(self):
         """Protokoll generieren"""
         data = get_all_data()
+        if not data:
+            self.label.show_snackbar('Keine Daten vorhanden.')
+            return
+        
         df = pd.DataFrame(data)
         print(df.columns)
         pg_generiere_protokoll(df.to_dict(orient='records'))
+        self.label.show_snackbar('Protokoll erstellt.')
    
 if __name__ == '__main__':
     ProtokollApp().run()
