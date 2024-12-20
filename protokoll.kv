@@ -5,15 +5,19 @@
     beginn: beginn
     ende: ende
     grund: grund
-        
+    verursacher: verursacher
+    auswirkung: auswirkung
+    massnahme_zeitraum: massnahme_zeitraum
+    chart_box: chart_box
+
     MDFloatLayout:
         # Hintergrundbild
         Image:
-            source: 'utils/image/R (8).jpg'  # Bildquelle
+            source: 'utils/image/R (8).jpg'
             allow_stretch: True
             keep_ratio: False
-            size_hint: 1, 1  # Bild füllt den gesamten Bereich
-            pos: self.pos
+            size_hint: 1, 1  # Füllt den gesamten verfügbaren Platz
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
             canvas.before:
                 Rectangle:
                     size: self.size
@@ -22,113 +26,116 @@
         # Top App Bar
         MDTopAppBar:
             id: top_app_bar
-            title: "Lärmprotokoll App"
+            title: "Protokolli"
             md_bg_color: app.theme_cls.primary_color
             size_hint_y: None
-            size_hint_x: 1
             pos_hint: {"top": 1}
             height: "50dp"
             elevation: 4
-            right_action_items: [["utils/image/pdf-icon-png-2056.png", lambda _: app.generiere_protokoll()]]
+            right_action_items: [["utils/image/pdf-icon-png-2056.png", lambda _: root.generiere_alle_protokolle()]]
+            left_action_items: [["menu", lambda _: app.menu_open()]]
+
+        MyDraggableCard:
+            size_hint: None, None
+            size: "700dp", "500dp"
+            elevation: 3
         
-        FloatLayout:
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            MDBoxLayout:
+                id: chart_box
+                orientation: 'vertical'
         
-            # Verschiebbare Karte 1: Einträge bearbeiten
-            MyDraggableCard:
-                size_hint: None, None
-                size: "400dp", "250dp"
-                elevation: 2
+                Image:
+                    id: plot_image
+                    source: ''
+                    allow_stretch: True
+                    keep_ratio: False  # Setze keep_ratio auf False, um das Bild zu strecken
+                    size_hint: 1, 1  # Ändere die size_hint, um den gesamten Platz auszufüllen  
+
+        # Verschiebbare Karte 2: Protokoll erstellen
+        MyDraggableCard:
+            size_hint: None, None
+            size: "500dp", "550dp"
+            elevation: 2
+
+            MDGridLayout:
+                cols: 1
+                padding: dp(20)
+                spacing: dp(20)
+
+                MDLabel:
+                    text: "Protokoll erstellen"
+                    halign: "center"
+                    font_style: "H6"
+                    size_hint_y: None
+                    height: dp(30)
 
                 MDBoxLayout:
                     orientation: "vertical"
-                    padding: dp(20)
                     spacing: dp(10)
-
-                    MDLabel:
-                        text: "Einträge bearbeiten"
-                        halign: "center"
-                        font_style: "H6"
-                        size_hint_y: None
-                        height: dp(30)
-
-                    MDTextField:
-                        id: eingabe
-                        hint_text: "ID"
-                        mode: "rectangle"
-                        size_hint_y: None
-                        height: "40dp"
 
                     MDBoxLayout:
-                        spacing: dp(10)
-                        size_hint_y: None
-                        height: dp(50)
-
-                        MDRaisedButton:
-                            text: "Aktualisieren"
-                            on_press: app.aktualisiere_eintrag(eingabe.text)
-
-                        MDRaisedButton:
-                            text: "Löschen"
-                            on_press: app.loesche_daten(eingabe.text)
-        MDFloatLayout:
-
-            # Verschiebbare Karte 2: Protokoll erstellen
-            MyDraggableCard:
-                size_hint: None, None
-                size: "500dp", "600dp"
-                elevation: 2
-
-                MDBoxLayout:
-                    orientation: "vertical"
-                    padding: dp(20)
-                    spacing: dp(10)
-
-                    MDLabel:
-                        text: "Protokoll erstellen"
-                        halign: "center"
-                        font_style: "H6"
-                        size_hint_y: None
-                        height: dp(30)
-
-                    MDGridLayout:
-                        cols: 2
+                        orientation: "horizontal"
                         spacing: dp(10)
 
                         MDLabel:
-                            text: "Datum (YYYY-MM-DD):"
+                            text: "Datum (DD-MM-YYYY):"
                         MDTextField:
                             id: datum
-                            hint_text: "z.B. 2023-12-31"
+                            hint_text: "z.B. 31-12-2023"
+                            width: dp(280)
                             mode: "rectangle"
+                    
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(10)
 
                         MDLabel:
                             text: "Beginn (HH:MM):"
                         MDTextField:
                             id: beginn
                             hint_text: "z.B. 08:00"
+                            width: dp(280)
                             mode: "rectangle"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(10)
 
                         MDLabel:
                             text: "Ende (HH:MM):"
                         MDTextField:
                             id: ende
                             hint_text: "z.B. 08:01"
+                            width: dp(280)
                             mode: "rectangle"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(10)
 
                         MDLabel:
                             text: "Art der Störung:"
                         MDTextField:
                             id: grund
                             hint_text: "z.B. Trampeln"
+                            width: dp(280)
                             mode: "rectangle"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(10)
 
                         MDLabel:
                             text: "Verursacher:"
                         MDTextField:
                             id: verursacher
                             hint_text: "z.B. Nachbar"
+                            width: dp(280)
                             mode: "rectangle"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(10)
 
                         MDLabel:
                             text: "Auswirkung:"
@@ -136,9 +143,65 @@
                             id: auswirkung
                             hint_text: "z.B. 3"
                             input_type: "number"
+                            width: dp(280)
                             mode: "rectangle"
 
                     MDRaisedButton:
                         text: "Daten erfassen"
                         pos_hint: {"center_x": 0.5}
-                        on_press: app.erfasse_daten(datum.text, beginn.text, ende.text, grund.text, verursacher.text, auswirkung.text)
+
+                        on_press: 
+                            app.erfasse_daten(datum.text, beginn.text, ende.text, grund.text, verursacher.text, auswirkung.text)
+                        spacing: dp(10)           
+
+        # Maßnahmen-MyDraggableCard
+        MyDraggableCard:
+            size_hint: None, None
+            size: "500dp", "350dp"
+            elevation: 2
+
+            MDGridLayout:
+                cols: 1
+                padding: dp(20)
+                spacing: dp(20)
+
+                MDLabel:
+                    text: "Maßnahmen erfassen"
+                    halign: "center"
+                    font_style: "H6"
+                    size_hint_y: None
+                    height: dp(30)
+                    width: dp(280)
+
+                MDTextField:
+                    id: massnahme_zeitraum
+                    hint_text: "Zeitraum angeben"
+                    mode: "rectangle"
+                    size_hint_y: None
+                    height: "40dp"
+                    width: dp(280)
+
+                MDTextField:
+                    id: massnahme_beschreibung
+                    hint_text: "Maßnahme beschreiben"
+                    mode: "rectangle"
+                    multiline: True
+                    size_hint_y: None
+                    height: "80dp"
+                    width: dp(280)
+
+                MDTextField:
+                    id: massnahme_ergebnis
+                    hint_text: "Ergebnis"
+                    mode: "rectangle"
+                    size_hint_y: None
+                    height: "40dp"
+                    width: dp(280)
+
+                MDRaisedButton:
+                    text: "Maßnahme speichern"
+                    pos_hint: {"center_x": 0.5}
+                    size_hint: None, None
+                    width: dp(280)
+                    on_press: 
+                        app.speichere_massnahme(massnahme_zeitraum.text, massnahme_beschreibung.text, massnahme_ergebnis.text)

@@ -1,213 +1,270 @@
-from pydoc import text
-from turtle import title
-from kivymd.app import MDApp
-from kivy.uix.boxlayout import BoxLayout
+from email.mime import image
 from kivy.clock import Clock
-from kivymd.uix.label import MDLabel
-from kivymd.uix.snackbar import MDSnackbar
-from kivy.graphics import Rotate 
-from custom_widget.draggable_card import MyDraggableCard
-from datetime import datetime
-from database.database_setup import create_database, insert_data, get_all_data, update_data, delete_data
-from utils.pdf_generation import generiere_protokoll as pg_generiere_protokoll
-from utils.data_processing import analyse_dauer as dp_analyse_dauer 
-from utils.data_processing import analyse_auswirkungen as dp_analyse_auswirkung
-from utils.data_processing import analyse_haeufigkeit as dp_analyse_haeufigkeit
 from kivy.properties import ObjectProperty
+from kivy.lang import Builder
+from kivymd.app import MDApp
+from kivymd.uix.list import OneLineListItem
+from kivy.metrics import dp
+from kivymd.uix.button import MDIconButton
+from utils.data_processing import analyse_dauer
+from utils.pdf_generation import generiere_protokoll, generiere_massnahmen
+from custom_widget import draggable_card
+from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.fitimage import FitImage
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.gridlayout import MDGridLayout
-from kivymd.uix.toolbar import MDTopAppBar
-from kivymd.uix.textfield import MDTextField
-from kivymd.uix.card import MDCard
-from kivy.core.window import Window
-import pandas as pd
+from kivy_garden.graph import Graph, MeshLinePlot
+from database.database_setup import create_database, insert_laermdaten, get_all_laermdaten, insert_massnahmen
+from datetime import datetime
+import re
 import os
 
-import logging
-log_directory = 'data/logs'
-log_file_path = os.path.join(log_directory, 'app.log')
-os.makedirs(log_directory, exist_ok=True)
+PLOTER_FOLDER = os.path.join(os.getcwd(), "plots")
 
-logging.basicConfig(
-    level=logging.DEBUG, 
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_file_path),
-        logging.StreamHandler()
-    ],
-    filename=log_file_path
-)
-logger = logging.getLogger(__name__)
-
-class RootWidget(BoxLayout):
+class RootWidget(MDBoxLayout):
+    plot_menu_button = ObjectProperty()
+    chart_box = ObjectProperty()
     datum = ObjectProperty()
     beginn = ObjectProperty()
     ende = ObjectProperty()
-    avg_dauer = ObjectProperty()
-    avg_auswirkung = ObjectProperty()
-    haeufigster_verursacher = ObjectProperty()
-    dauer = ObjectProperty() 
     grund = ObjectProperty()
     verursacher = ObjectProperty()
     auswirkung = ObjectProperty()
+    zeitraum = ObjectProperty()
+    beschreibung = ObjectProperty()
+    ergebnis = ObjectProperty()
+    menu_open = ObjectProperty(None)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def on_kv_post(self, base_widget):
         app = MDApp.get_running_app()
         Clock.schedule_once(lambda dt: app.set_default_values(), 0)
 
+    def generiere_protokoll(self):
+        # Get the data from the input fields
+        data = [
+            [
+                self.datum,
+                self.beginn,
+                self.ende,
+                self.grund,
+                self.verursacher,
+                self.auswirkung
+            ]
+        ]
 
-class VerticalLabel(MDLabel):
-    def __init__(self, **kwargs):
-        super(VerticalLabel, self).__init__(**kwargs)
-        self.bind(size=self._update_rotation, pos=self._update_rotation)
-        with self.canvas.before:
-            self.rot = Rotate(angel=270, origin=self.center)
-
-    def _update_rotation(self, *args):
-        self.rot.origin = self.center
-
-    def create_label(self, message):
-        label = VerticalLabel()
-        label.text = (message)
-        label.font_size = '18sp'
-        label.size_hint = (1, None)
-        label.texture_update()
-        label.size = label.texture_size
-        label.halign = "center"  # Horizontale Ausrichtung
-        label.valign = "middle"  # Vertikale Ausrichtung
-        return label
-
-    # Funktion zum Anzeigen der Snackbar
-    def show_snackbar(self, message):
-        snackbar = MDSnackbar()
-
-        # Erstelle das Label mit der Funktion
-        label = self.create_label(message)
-
-        # Setze das Label als Inhalt der Snackbar
-
-        snackbar.content = label
-        snackbar.add_widget(snackbar.content)
+        # Call the function that generates the protocol PDF
+        generiere_protokoll(data)
     
-        # Weitere Einstellungen für die Snackbar
-        snackbar.duration = 3
-        snackbar.pos_hint = {"center_x": 0.5, "center_y": 0.5}
-        snackbar.size_hint = (0.15, 0.1)
-        snackbar.md_bg_color = self.theme_cls.primary_color  # Hintergrundfarbe der Snackbar
-        snackbar.text_color = [1, 0, 0, 1]  # Textfarbe der Snackbar (rot)
-    
-        # Öffne die Snackbar
-        snackbar.open()
+    def generiere_massnahmen(self):
+        self.zeitraum = self.ids.massnahme_zeitraum.text.strip()
+        self.beschreibung = self.ids.massnahme_beschreibung.text.strip()
+        self.ergebnis = self.ids.massnahme_ergebnis.text.strip()
+
+
+        # Daten für die PDF-Generierung vorbereiten
+        data = [
+            {
+                self.zeitraum,
+                self.beschreibung,
+                self.ergebnis,
+            }
+        ]
+
+        # PDF generieren
+        generiere_massnahmen(data)
+
+    def generiere_alle_protokolle(self):
+        self.generiere_protokoll()  # Lärmprotokoll
+        self.generiere_massnahmen()  # Maßnahmenprotokoll
+
+    def save_data(self):
+        """Speichert die Eingabedaten in der Datenbank."""
+        try:
+            datum = self.datum.text
+            beginn = self.beginn.text
+            ende = self.ende.text
+            grund = self.grund.text
+            verursacher = self.verursacher.text
+            auswirkung = self.auswirkung.text
+
+            # Validierung der Eingaben
+            if not MDApp.get_running_app().validate_inputs(datum, beginn, ende, grund, verursacher, auswirkung):
+                return
+
+            # Daten in die Datenbank einfügen
+            insert_laermdaten(datum, beginn, ende, grund, verursacher, auswirkung)
+            MDApp.get_running_app().show_message("Daten erfolgreich gespeichert!")
+        except Exception as e:
+            MDApp.get_running_app().show_message(f"Fehler: {e}")
+
+    def load_data(self):
+        """Lädt die gespeicherten Daten aus der Datenbank."""
+        try:
+            data = get_all_laermdaten()
+            print("Gespeicherte Daten:")
+            for entry in data:
+                print(entry)
+            MDApp.get_running_app().show_message("Daten erfolgreich geladen!")
+        except Exception as e:
+            MDApp.get_running_app().show_message(f"Fehler: {e}")
+
 
 class ProtokollApp(MDApp):
     def __init__(self, **kwargs):
         super(ProtokollApp, self).__init__(**kwargs)
-        self.current_date, self.current_time = self.default_values()
-        self.label = VerticalLabel()
-        self.draggable_card = MyDraggableCard()
-        
-    def build(self):
-        create_database()
-        self.root = RootWidget()
-        print("Widgets in Window:")
-        for widget in Window.children:
-            print(widget)
+        self.menu = None
 
-        for widget in self.root.children:
-            print("Child: ", widget)
+    def build(self):
+        #Builder.load_file("protokoll.kv")
+        create_database()  # Datenbank erstellen
+        self.root = RootWidget()
+        self.create_plot_menu()
         return self.root
 
     def on_start(self):
-        Clock.schedule_once(self.set_default_values)  # Warten, bis das Layout vollständig geladen ist
         self.set_default_values()
 
-    def default_values(self):
-        now = datetime.now()
-        current_date = now.strftime("%Y-%m-%d")
-        current_time = now.strftime("%H:%M")
-        return current_date, current_time
-
     def set_default_values(self, *args):
-        """Stellt sicher, dass die TextInputs gesetzt werden, nachdem das Layout geladen ist"""
+        """Setzt Standardwerte für Datum und Zeit"""
         current_date = datetime.now().strftime("%d-%m-%Y")
-        if self.root.ids.get("datum"):
-            self.root.datum.text = current_date
-        else:
-            print("Fehler: Datum fehlt oder widget nicht gefunden.")
-        
         current_time = datetime.now().strftime("%H:%M")
-        if self.root.ids.get("beginn"):
-            self.root.beginn.text = current_time
-        else:
-            print("Fehler: Beginn fehlt oder widget nicht gefunden.")
-        
-        if self.root.ids.get("ende"):
-            self.root.ende.text = current_time
-        else:
-            print("Fehler: Ende fehlt oder widget nicht gefunden.")
 
-        current_date, current_time = self.default_values()
-        self.root.ids.datum.text = current_date
-        self.root.ids.beginn.text = current_time
-        self.root.ids.ende.text = current_time
-        
+        for field, value in [("datum", current_date), ("beginn", current_time), ("ende", current_time)]:
+            if self.root.ids.get(field):
+                getattr(self.root, field).text = value
 
-    def erfasse_daten(self, datum, beginn, ende, grund, verursacher, auswirkung):
-        """Daten erfassen und in die Datenbank einfügen"""
-        start_datetime = datetime.strptime(f"{datum} {beginn}", "%Y-%m-%d %H:%M")
-        end_datetime = datetime.strptime(f"{datum} {ende}", "%Y-%m-%d %H:%M")
-        dauer = (end_datetime - start_datetime).total_seconds() / 60
-        insert_data(datum, beginn, ende, dauer, grund, verursacher, auswirkung)
-        self.label.show_snackbar(f'Daten erfasst: {datum}, {beginn}, {ende}, Art der Störung: {grund}, Nachbar: {verursacher}, Auswirkung: {auswirkung}')
+    def validate_inputs(self, datum, beginn, ende, grund, verursacher, auswirkung):
+        datum_pattern = r"^\d{4}-\d{2}-\d{2}$"
+        zeit_pattern = r"^\d{2}:\d{2}$"
+        if not re.match(datum_pattern, datum):
+            self.show_message("Datum im Format YYYY-MM-DD eingeben!")
+            return False
+        if not all(re.match(zeit_pattern, t) for t in [beginn, ende]):
+            self.show_message("Zeit im Format HH:MM eingeben!")
+            return False
+        if beginn >= ende:
+            self.show_message("Beginn muss vor Ende liegen!")
+            return False
+        if not all([grund, verursacher, auswirkung]):
+            self.show_message("Bitte alle Felder ausfüllen!")
+            return False
+        return True
 
-    def aktualisiere_daten(self, entty_id, datum, beginn, ende, dauer, grund, verursacher, auswirkung):
-        """Daten aktualisieren"""
-        try:
-            update_data(entty_id, datum, beginn, ende, dauer, grund, verursacher, auswirkung)
-            self.label.show_snackbar(f'Daten aktualisiert: {entty_id}, {datum}, {beginn}, {ende}, Dauer: {dauer}, Art der Störung: {grund}, Nachbar: {verursacher}, Auswirkung: {auswirkung}')
-        except Exception as e:
-            self.label.show_snackbar(f'Fehler beim Aktualisieren der Daten: {e}')
-
-    def loesche_daten(self, entry_id):
-        """Daten löschen"""
-        try:
-            delete_data(entry_id)
-            self.label.show_snackbar(f'Daten gelöscht: {entry_id}')
-        except Exception as e:
-            self.label.show_snackbar(f'Fehler beim Löschen der Daten: {e}')
-
-    def analyse_dauer(self):
-        """Durchschnittliche Dauer analysieren"""
-        avg_dauer = dp_analyse_dauer(self)
-        self.root.avg_dauer_label = f'{avg_dauer:.2f} Minuten'
-        self.label.show_snackbar(f'  Durchschnittliche Dauer: {avg_dauer:.2f} Minuten')
-
-    def analyse_auswirkung(self):
-        """Durchschnittliche Auswirkungen analysieren"""
-        avg_auswirkung = dp_analyse_auswirkung(self)
-        self.root.ids.avg_auswirkung_label = f'{avg_auswirkung:.2f}'
-        self.label.show_snackbar(f' Durchschnittliche Auswirkung: {avg_auswirkung:.2f}')
+    def show_message(self, message):
+        """Zeigt eine Nachricht in der App (z. B. als Snackbar)."""
+        from kivymd.uix.snackbar import Snackbar
+        Snackbar(text=message).open()
 
     def analyse_haeufigkeit(self):
-        """Häufigster Verursacher analysieren"""
-        verursacher, freq = dp_analyse_haeufigkeit(self)
-        self.root.ids.haeufigster_verursacher_label = f"{verursacher} mit {freq} Vorkommen"
-        self.label.show_snackbar(f'  Häufigster Verursacher:  {verursacher} = {freq}')
+        """Analyse des häufigsten Verursachers."""
+        try:
+            data = get_all_laermdaten()
+            if data:
+                verursacher = [row[4] for row in data]
+                haeufigster = max(set(verursacher), key=verursacher.count)
+                self.root.ids.haeufigster_verursacher.text = f"Häufigster Verursacher: {haeufigster}"
+        except Exception as e:
+            self.show_message(f"Fehler bei der Häufigkeitsanalyse: {e}")
 
-    def generiere_protokoll(self):
-        """Protokoll generieren"""
-        data = get_all_data()
-        if not data:
-            self.label.show_snackbar('Keine Daten vorhanden.')
+    def analyse_auswirkung(self):
+        """Durchschnittliche Auswirkung berechnen."""
+        try:
+            data = get_all_laermdaten()
+            if data:
+                auswirkungen = [int(row[5]) for row in data]
+                durchschnitt = sum(auswirkungen) / len(auswirkungen)
+                self.root.ids.durchschnittliche_auswirkung.text = f"Durchschnittliche Auswirkung: {durchschnitt:.2f}"
+        except Exception as e:
+            self.show_message(f"Fehler bei der Auswirkungsanalyse: {e}")
+
+    def analyse_dauer(self):
+        """Ruft die Methode zur Daueranalyse auf und zeigt das Ergebnis an."""
+        data = get_all_laermdaten()
+        durchschnitt = analyse_dauer(data)
+        self.root.ids.durchschnittliche_dauer.text = f"Durchschnittliche Dauer: {durchschnitt}"
+
+    def erfasse_daten(self, datum, beginn, ende, grund, verursacher, auswirkung):
+        """Daten erfasen un in der Datenbank speichern"""
+        # Validierung: Sind alle Felder ausgefüllt?
+        if not datum or not beginn or not ende or not grund or not verursacher or not auswirkung:
+            print("Bitte die Felder ausfüllen!")
             return
         
-        df = pd.DataFrame(data)
-        print(df.columns)
-        pg_generiere_protokoll(df.to_dict(orient='records'))
-        self.label.show_snackbar('Protokoll erstellt.')
-   
+        # Daten in die DB speichern
+        try:
+            insert_laermdaten(datum, beginn, ende, grund, verursacher, auswirkung)
+            print("Daten erfolgreich gespeichert!")
+        except Exception as e:
+            print(f"Fehler beim Speichern der Daten: {e}")
+
+    def speichere_massnahme(self, zeitraum, beschreibung, ergebnis):
+        """Massnahme-Daten speichern"""
+        # Validierung: Sind alle Felder ausgefüllt?
+        if not zeitraum or not beschreibung or not ergebnis:
+            print("Bitte füllen Sie alle Felder aus.")
+            return
+
+        # Daten speichern (z.B. in einer Datenbank)
+        try:
+            insert_massnahmen(zeitraum, beschreibung, ergebnis)  # Funktion aus database_setup
+            print("Massnahme erfolgreich gespeichert!")
+        except Exception as e:
+            print(f"Fehler beim Speichern der Massnahme: {e}")
+
+    def create_plot_menu(self):
+        """Erstellt ein Dropdown-Menü für generierte Plots."""
+        plot_folder = "./plots"
+        menu_items = []
+
+        try:
+            if os.path.exists(plot_folder):
+                for plot_file in os.listdir(plot_folder):
+                    if plot_file.endswith(".png"):
+                        menu_items.append(
+                            {
+                                "viewclass": "OneLineListItem",
+                                "text": plot_file,
+                                "on_release": lambda x=plot_file: self.show_plot(x),
+                            }
+                        )
+            else:
+                self.show_message("Der Ordner 'plots' ist nicht vorhanden.")
+        except Exception as e:
+            self.show_message(f"Fehler beim Laden der Plots: {e}")
+
+        # Menu erstellen auch wenn keine Items vorhanden sind
+        self.menu = MDDropdownMenu(
+            caller=self.root.ids.top_app_bar,
+            items=menu_items or [{"text": "Keine Plots verfügbar", "viewclass": "OneLineListItem"}],
+            width_mult=4,
+        )
+
+
+    def show_plot(self, plot_file):
+        """Zeigt den ausgewählten Plot in der App an."""
+        plot_path = os.path.join(PLOTER_FOLDER, plot_file)
+
+        # Wenn der Plot existiert, anzeigen
+        if os.path.exists(plot_path):
+            self.root.ids.chart_box.clear_widgets()
+            image = FitImage(source=plot_path)
+            self.root.ids.chart_box.add_widget(image)
+        else:
+            self.show_message(f"Plot '{plot_file}' wurde nicht gefunden.")
+
+        # Menü schließen
+        self.menu.dismiss()
+
+
+    def menu_open(self):
+        """Öffnet das DDM"""
+        if self.menu:
+            self.menu.open()
+        else:
+            self.show_message("Das Menü ist nicht initialisiert.")
+
+
 if __name__ == '__main__':
     ProtokollApp().run()
