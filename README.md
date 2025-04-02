@@ -33,7 +33,6 @@ Zudem bin gerade selber in so einer Situation deswegen der Entschluss hierzu.
 - ⚙️ **Einfache Benutzeroberfläche** mit Kivy & Kivymd
 - 🛠️ **Möglichkeit, die Datenbank zu manipulieren** Einträge löschen, abändern, durchsuchen
 - 🖥️ **Benutzerfreundlichkeit**
-- 📱 **Mobile Version geplant** – Die Benutzeroberfläche wird auch auf mobilen Geräten gut funktionieren, was dir maximale Flexibilität bietet.
 
 ## 📋 Installation
 
@@ -135,15 +134,10 @@ Dieses Projekt ist unter der MIT-Lizenz lizenziert. Weitere Details findest du i
 ## 🖼️ Screenshots
 
 Hier ist ein Beispiel, wie die Benutzeroberfläche aussieht:
-!Folgen noch
+
+![NewLayout](https://github.com/user-attachments/assets/ff4416e3-a960-4c64-a0e3-e8ecb8b38a53)
+![Unbenannt1](https://github.com/user-attachments/assets/fd72d292-4241-41b5-9580-51c048590a4e)
 
 ## 📝 To-Do's
 
 - [ ] Layout verbessern
-- [ ] Daten via Netzwerk (WLAN) automatisch an die App senden
-  - Details: Datum, Beginn, Ende, Dauer, Decibel
-
-## Screenshots:
-![NewLayout](https://github.com/user-attachments/assets/ff4416e3-a960-4c64-a0e3-e8ecb8b38a53)
-![Unbenannt1](https://github.com/user-attachments/assets/fd72d292-4241-41b5-9580-51c048590a4e)
-
